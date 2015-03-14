@@ -1,0 +1,51 @@
+@()(implicit request: RequestHeader)
+@helper.javascriptRouter("jsRoutes")(
+  routes.javascript.Application.subscribe,
+  routes.javascript.Application.publish
+)
+@content = {
+    <h3><a name="publisher">Publisher</a></h3>
+    <form>
+        <div class="form-group">
+            <label for="channel">Channel</label>
+            <select id="channel">
+                <option value="default">Default</option>
+                <option value="secret">Secret</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="message">Message</label>
+            <input type="text" class="form-control" id="message" placeholder="Message">
+        </div>
+        <button id="submit" type="button" class="btn btn-default">Submit</button>
+    </form>
+    <h3><a name="subscriber">Subscriber</a></h3>
+    <div id="messages"></div>
+}
+@template("Trivial example", content = content){
+    <script type="text/javascript">
+        var socket = null
+        function subscribe(channel) {
+            var subscribeUrl = jsRoutes.controllers.Application.subscribe().webSocketURL() + "?channel=" + channel
+            console.log("Subscribed to: " + subscribeUrl)
+            socket = new WebSocket(subscribeUrl)
+            socket.onmessage = function(msg) {
+                $("#messages" ).prepend("<div>" + msg.data + "</div>")
+            }
+        }
+        $(document).ready(function(){
+            subscribe($("#channel" ).val())
+            $("#channel" ).change(function(){
+                if(socket) socket.close()
+                subscribe($(this ).val())
+            })
+            $("#submit" ).click(function(){
+                var publishUrl = jsRoutes.controllers.Application.publish($("#channel" ).val() ).url
+                console.log(publishUrl)
+                jQuery.post(publishUrl, "message="+$("#message" ).val() ).success(function(){
+                    $("#message" ).val("")
+                })
+            })
+        })
+    </script>
+}

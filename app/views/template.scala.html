@@ -1,0 +1,64 @@
+@(title: String, header: Html = Html(""), content: Html = Html(""))(javascripts: Html = Html(""))(implicit request: RequestHeader)
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")" />
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("lib/bootstrap/css/bootstrap.min.css")" />
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/sticky-footer-navbar.css")" />
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")" />
+    @header
+  </head>
+  <body>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">Akka/Redis PubSub</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="#publisher">Publisher</a></li>
+            <li><a href="#subscriber">Subscriber</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <!-- Begin page content -->
+    <div class="container">
+      @content
+    </div>
+
+    <footer class="footer">
+      <div class="container">
+        <p class="text-muted">@@hussachai @{java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)}</p>
+      </div>
+    </footer>
+    <script type="text/javascript" src="@routes.Assets.at("lib/jquery/jquery.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("lib/bootstrap/js/bootstrap.min.js")"></script>
+    @javascripts
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
