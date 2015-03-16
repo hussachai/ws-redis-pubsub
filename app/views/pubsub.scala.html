@@ -29,8 +29,13 @@
             var subscribeUrl = jsRoutes.controllers.Application.subscribe().webSocketURL() + "?channel=" + channel
             console.log("Subscribed to: " + subscribeUrl)
             socket = new WebSocket(subscribeUrl)
-            socket.onmessage = function(msg) {
-                $("#messages" ).prepend("<div>" + msg.data + "</div>")
+            socket.onmessage = function(event) {
+                $("#messages" ).prepend("<div>" + event.data + "</div>")
+            }
+            socket.onclose = function(event) {
+                console.log(event)
+                //you can reconnect here
+                //subscribe(channel)
             }
         }
         $(document).ready(function(){

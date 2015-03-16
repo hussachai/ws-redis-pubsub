@@ -14,7 +14,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object Application extends Controller {
 
-  val log = Logger(getClass)
+  val log = Logger.logger
 
   implicit val akkaSystem = akka.actor.ActorSystem()
 
@@ -38,11 +38,11 @@ object Application extends Controller {
       params.get("message").map{ message =>
         redis.publish(channel, message.head).map{ n =>
           if(n > 0) {
-            log.debug(s"Number of subscriber: $n")
+            log.debug(s"Number of subscriber: $n s")
             Ok(n.toString)
           }
           else {
-            log.debug("No recipients")
+            log.debug("No recipient")
             Gone
           }
         }
@@ -53,11 +53,21 @@ object Application extends Controller {
   class SubscribeActor(out: ActorRef, channels: Seq[String] = Nil, patterns: Seq[String] = Nil) extends RedisSubscriberActor(
     new InetSocketAddress(redis.host, redis.port), channels, patterns) {
 
+    Logger.logger.debug(s"Started RedisSubscriberActor for channels: $channels")
+
     def onMessage(message: Message) {
       out ! message.data
     }
 
     def onPMessage(pmessage: PMessage) {}
+
+    override def onClosingConnectionClosed(): Unit = {
+      Logger.logger.debug(s"RedisSubscriberActor for channels: $channels is closing")
+    }
+
+    override def postStop() {
+      Logger.logger.debug(s"RedisSubscriberActor for channels: $channels is stopping")
+    }
   }
 
 }
