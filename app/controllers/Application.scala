@@ -12,7 +12,7 @@ import play.api.Play.current
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object Application extends Controller {
+class Application extends Controller {
 
   val log = Logger.logger
 
@@ -25,7 +25,7 @@ object Application extends Controller {
   }
 
   def subscribe = WebSocket.tryAcceptWithActor[String, String] { request =>
-    def props(channel: String)(out: ActorRef) = Props(classOf[SubscribeActor], out, Seq(channel), Nil)
+    def props(channel: String)(out: ActorRef) = Props(classOf[SubscribeActor], redis, out, Seq(channel), Nil)
       .withDispatcher("rediscala.rediscala-client-worker-dispatcher")
     Future.successful(request.getQueryString("channel") match {
       case None => Left(Forbidden)
@@ -49,25 +49,4 @@ object Application extends Controller {
       }
     }.getOrElse(Future.successful(BadRequest("No content received")))
   }
-
-  class SubscribeActor(out: ActorRef, channels: Seq[String] = Nil, patterns: Seq[String] = Nil) extends RedisSubscriberActor(
-    new InetSocketAddress(redis.host, redis.port), channels, patterns) {
-
-    Logger.logger.debug(s"Started RedisSubscriberActor for channels: $channels")
-
-    def onMessage(message: Message) {
-      out ! message.data
-    }
-
-    def onPMessage(pmessage: PMessage) {}
-
-    override def onClosingConnectionClosed(): Unit = {
-      Logger.logger.debug(s"RedisSubscriberActor for channels: $channels is closing")
-    }
-
-    override def postStop() {
-      Logger.logger.debug(s"RedisSubscriberActor for channels: $channels is stopping")
-    }
-  }
-
 }
